@@ -1,0 +1,25 @@
+<html lang="en">
+<head>
+    <% include ../helpers/head %>
+</head>
+
+<body>
+    <!-- the classes 'page-header' and 'btn btn-dark' create bootstrap components.  -->
+    <!-- Check out more components here: http://getbootstrap.com/components/ -->
+    <div class="page-header">
+    <% include ../helpers/navbar %>
+    <h1>Getting Started With HubSpot OAuth</h1>
+    </div>
+
+    <% if (token) { %> 
+        <p>You're authenticated using token <% token %></p>
+        <p>Your account has these countacts: </p>
+        
+    <% } else { %> 
+        <p>You're not authenticated </p>
+        <p>Please install me <a href= <% authUrl %> >here</a></p>
+    <% } %>
+  
+</body>
+
+</html>
