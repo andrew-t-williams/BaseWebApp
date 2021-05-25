@@ -12,12 +12,12 @@
     </div>
 
     <% if (token) { %> 
-        <p>You're authenticated using token <% token %></p>
+        <p>You're authenticated using token: <%= token %></p>
         <p>Your account has these countacts: </p>
         
     <% } else { %> 
         <p>You're not authenticated </p>
-        <p>Please install me <a href= <% authUrl %> >here</a></p>
+        <p>Please install me <a href= <%= authUrl %> >here</a></p>
     <% } %>
   
 </body>
