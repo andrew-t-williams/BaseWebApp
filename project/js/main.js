@@ -8,8 +8,7 @@ function showPicture(){
   
 }
 
-function getWeather(searchQuery) {
-  var apiKey = "7c34e0d277c644fce75502a0c6fe017d";
+function getWeather(searchQuery, apiKey) {
   var url = "https://api.openweathermap.org/data/2.5/weather?q="+searchQuery+"&units=metric&appid="+apiKey;
 
   $.ajax(url, {success:function(data){
@@ -18,7 +17,7 @@ function getWeather(searchQuery) {
   }})
 }
 
-function searchWeather() {
+function searchWeather(apiKey) {
   var searchQuery = $(".search").val();
-  getWeather(searchQuery);
+  getWeather(searchQuery, apiKey);
 }

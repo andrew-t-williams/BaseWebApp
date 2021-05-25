@@ -16,6 +16,7 @@ app.set('view engine', 'ejs');
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
+const WEATHER_API = process.env.WEATHER_API;
 
 const REDIRECT_URI = "http://localhost:5000/oauth-callback";
 const authUrl = "https://app.hubspot.com/oauth/authorize?client_id=b0747bc6-369d-4f97-abfc-480d0212b0c5&redirect_uri=http://localhost:5000/oauth-callback&scope=contacts";
@@ -33,7 +34,7 @@ const isAuthorized = (userId) => {
 };
 
 app.get('/', function(request, response) {
-  response.render('pages/index');
+  response.render('pages/index', {apiKey: WEATHER_API});
 });
 
 app.get('/about', function(request, response) {
