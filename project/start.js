@@ -2,6 +2,7 @@ const querystring = require('querystring');
 const axios = require('axios');
 const session = require('express-session');
 
+var request = require("request");
 var express = require('express');
 const { query } = require('express');
 var app = express();
@@ -16,11 +17,11 @@ app.set('view engine', 'ejs');
 
 const CLIENT_ID = process.env.CLIENT_ID;
 const CLIENT_SECRET = process.env.CLIENT_SECRET;
-const WEATHER_API = process.env.WEATHER_API;
 
 const REDIRECT_URI = "http://localhost:5000/oauth-callback";
-const authUrl = "https://app.hubspot.com/oauth/authorize?client_id=b0747bc6-369d-4f97-abfc-480d0212b0c5&redirect_uri=http://localhost:5000/oauth-callback&scope=contacts";
+const authUrl = "https://app.hubspot.com/oauth/authorize?client_id=2e597278-27db-4592-aa19-3c25ba0af946&redirect_uri=http://localhost:5000/oauth-callback&scope=contacts";
 
+// This would typically be a database but is an object in this demo for simplicity
 const tokenStore = {};
 
 app.use(session({
@@ -34,7 +35,7 @@ const isAuthorized = (userId) => {
 };
 
 app.get('/', function(request, response) {
-  response.render('pages/index', {apiKey: WEATHER_API});
+  response.render('pages/index', {apiKey: process.env.WEATHER_API});
 });
 
 app.get('/about', function(request, response) {
@@ -48,18 +49,22 @@ app.get('/projects', function(request, response) {
 app.get('/auth', async (req, res) => {
   if (isAuthorized(req.sessionID)) {
     const accessToken = tokenStore[req.sessionID];
-    const headers = {
-      Authorization: `Bearer ${accessToken}`,
-      'Content-Type': 'application/json'
+    var options = {
+      method: 'GET',
+      url: 'https://api.hubapi.com/crm/v3/objects/contacts',
+      qs: {limit: '10', archived: 'false'},
+      headers: {
+      accept: 'application/json',
+      authorization: `Bearer ${accessToken}`
+      }
     };
-    const contacts = 'https://api.hubapi.com/contacts/v1/lists/all/contacts/recent';
     try {
-      // const resp = await axios.get(contacts, { headers });
-      // const data = resp.data;
-
-      res.render('pages/auth', {
-        token: accessToken//,
-        // contacts: data.contacts
+      request(options, function (error, response, body) {
+        if (error) throw new Error(error);
+        res.render('pages/auth', {
+          token: accessToken,
+          contacts: JSON.parse(body).results 
+        });
       });
     } catch(e) {
       console.error(e);

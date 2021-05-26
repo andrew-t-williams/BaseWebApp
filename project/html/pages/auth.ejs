@@ -13,8 +13,11 @@
 
     <% if (token) { %> 
         <p>You're authenticated using token: <%= token %></p>
-        <p>Your account has these countacts: </p>
-        
+        <p>Your account has these countacts: 
+            <% contacts.forEach(function(contact) { %>
+                <li><%= contact.properties.firstname %> <%= contact.properties.lastname %></li>
+            <% }); %>            
+        </p>
     <% } else { %> 
         <p>You're not authenticated </p>
         <p>Please install me <a href= <%= authUrl %> >here</a></p>
