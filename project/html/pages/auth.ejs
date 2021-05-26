@@ -8,19 +8,20 @@
     <!-- Check out more components here: http://getbootstrap.com/components/ -->
     <div class="page-header">
     <% include ../helpers/navbar %>
-    <h1>Getting Started With HubSpot OAuth</h1>
+    <h1>Hubspot Authentication and APIs</h1>
+    <p>Here, we will walk through the OAuth process for hubspot, and a simple API call after this has completed.</p>
     </div>
 
     <% if (token) { %> 
-        <p>You're authenticated using token: <%= token %></p>
-        <p>Your account has these countacts: 
+        <p>You're authenticated using token <%= token %></p>
+        <p>Your countacts: 
             <% contacts.forEach(function(contact) { %>
                 <li><%= contact.properties.firstname %> <%= contact.properties.lastname %></li>
             <% }); %>            
         </p>
     <% } else { %> 
-        <p>You're not authenticated </p>
-        <p>Please install me <a href= <%= authUrl %> >here</a></p>
+        <p>You're not authenticated!</p>
+        <p>Would you like to <a href= <%= authUrl %> >authenticate</a>?</p>
     <% } %>
   
 </body>

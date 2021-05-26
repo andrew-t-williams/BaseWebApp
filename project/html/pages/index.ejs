@@ -8,21 +8,17 @@
   <!-- Check out more components here: http://getbootstrap.com/components/ -->
   <div class="page-header">
     <% include ../helpers/navbar %>
-
   
-    <h1>This is a web-app used for testing</h1>
-  </div>
-
-  <input class="search" type="text" placeholder="Enter city name">
-  <button type="button" onClick="searchWeather('<%= apiKey %>')">Search</button>
-
-  <div class="city">
+    <h1>Welcome!</h1>
+    <p>This is a demo web app to test a few things, enjoy!</p>
 
   </div>
 
-  <div class="temp">
+  <p>Click on the button for a surprise!</p>
 
-  </div>
+  <button onClick="showPicture()" class="btn btn-dark">Click me</button>
+
+  <div id="image"></div>
   
 </body>
 

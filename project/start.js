@@ -35,11 +35,11 @@ app.use(session({
 }));
 
 app.get('/', function(request, response) {
-  response.render('pages/index', {apiKey: process.env.WEATHER_API});
+  response.render('pages/index');
 });
 
-app.get('/about', function(request, response) {
-  response.render('pages/about');
+app.get('/weather', function(request, response) {
+  response.render('pages/weather', {apiKey: process.env.WEATHER_API});
 });
 
 app.get('/projects', function(request, response) {

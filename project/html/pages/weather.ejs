@@ -8,15 +8,22 @@
   <!-- Check out more components here: http://getbootstrap.com/components/ -->
   <div class="page-header">
     <% include ../helpers/navbar %>
+
   
-    <h1>About Me</h1>
+    <h1>Check the Weather Before You Go!</h1>
+    <p>Here, we can use openweathermap's APIs to get weather information.</p>
   </div>
 
-  <p>Click on the button for a surprise!</p>
+  <input class="search" type="text" placeholder="Enter city name">
+  <button type="button" onClick="searchWeather('<%= apiKey %>')">Search</button>
 
-  <button onClick="showPicture()" class="btn btn-dark">Click me</button>
+  <div class="city">
 
-  <div id="image"></div>
+  </div>
+
+  <div class="temp">
+
+  </div>
   
 </body>
 
