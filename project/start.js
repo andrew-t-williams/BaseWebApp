@@ -1,11 +1,15 @@
 const querystring = require('querystring');
 const axios = require('axios');
 const session = require('express-session');
+const NodeCache = require('node-cache');
 
 var request = require("request");
 var express = require('express');
 const { query } = require('express');
+const { access } = require('fs');
 var app = express();
+
+const accessTokenCache = new NodeCache();
 
 app.set('port', (process.env.PORT || 5000));
 
@@ -21,18 +25,14 @@ const CLIENT_SECRET = process.env.CLIENT_SECRET;
 const REDIRECT_URI = "http://localhost:5000/oauth-callback";
 const authUrl = "https://app.hubspot.com/oauth/authorize?client_id=2e597278-27db-4592-aa19-3c25ba0af946&redirect_uri=http://localhost:5000/oauth-callback&scope=contacts";
 
-// This would typically be a database but is an object in this demo for simplicity
-const tokenStore = {};
+// IMPORTANT: When coppying this code to production, make sure to make this a database not an object!
+const refreshTokenStore = {};
 
 app.use(session({
   secret: Math.random().toString(36).substring(2),
   resave: false,
   saveUninitialized: true
 }));
-
-const isAuthorized = (userId) => {
-  return tokenStore[userId] ? true : false;
-};
 
 app.get('/', function(request, response) {
   response.render('pages/index', {apiKey: process.env.WEATHER_API});
@@ -46,9 +46,38 @@ app.get('/projects', function(request, response) {
   response.render('pages/projects');
 });
 
+const isAuthorized = (userId) => {
+  return refreshTokenStore[userId] ? true : false;
+};
+
+const getToken = async (userId) => {
+  if (accessTokenCache.get(userId)){
+    console.log(accessTokenCache.get(userId));
+    return accessTokenCache.get(userId);
+  } else {
+    try {
+      const refreshTokenProof = {
+        grant_type: 'refresh_token',
+        client_id: CLIENT_ID,
+        client_secret: CLIENT_SECRET,
+        redirect_uri: REDIRECT_URI,
+        refresh_token: refreshTokenStore[userId]
+      };
+      const responseBody = await axios.post('https://api.hubapi.com/oauth/v1/token', querystring.stringify(refreshTokenProof));
+      refreshTokenStore[userId] = responseBody.data.refresh_token;
+      accessTokenCache.set(userId, responseBody.data.access_token, Math.round(responseBody.data.expires_in * 0.75));
+      console.log("Getting refresh token")
+      return responseBody.data.access_token;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+}
+
+// 1. Send user to authentication page
 app.get('/auth', async (req, res) => {
   if (isAuthorized(req.sessionID)) {
-    const accessToken = tokenStore[req.sessionID];
+    const accessToken = await getToken(req.sessionID);
     var options = {
       method: 'GET',
       url: 'https://api.hubapi.com/crm/v3/objects/contacts',
@@ -74,6 +103,9 @@ app.get('/auth', async (req, res) => {
   }
 });
 
+
+// 2. Get temp auth key from Oauth servers
+// 3. Combine temp key with app credentials and send back to OAuth servers
 app.get('/oauth-callback', async (req, res) => {
   // res.send(req.query.code);
   const authCodeProof = {
@@ -86,7 +118,9 @@ app.get('/oauth-callback', async (req, res) => {
   try {
     const responseBody = await axios.post('https://api.hubapi.com/oauth/v1/token', querystring.stringify(authCodeProof));
     // res.json(responseBody.data);
-    tokenStore[req.sessionID] = responseBody.data.access_token;
+    // 4. Get access and refresh tokens
+    refreshTokenStore[req.sessionID] = responseBody.data.refresh_token;
+    accessTokenCache.set(req.sessionID, responseBody.data.access_token, Math.round(responseBody.data.expires_in * 0.75));
     res.redirect('/auth');
   } catch (e) {
     console.error(e);
